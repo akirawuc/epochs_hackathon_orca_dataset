@@ -28,8 +28,9 @@ Column schema:
 4. token
 5. amount
 6. pool_action:
-    a. Deposit: DepositAllTokenTypes
-    b. Withdraw: WithdrawAllTokenTypes
-    c. Deposit_Single: DepositSingleTokenTypeExactAmountIn
-    d. Withdraw_Single: WithdrawSingleTokenTypeExactAmountOut
+    * Deposit: DepositAllTokenTypes
+    * Withdraw: WithdrawAllTokenTypes
+    * Deposit_Single: DepositSingleTokenTypeExactAmountIn
+    * Withdraw_Single: WithdrawSingleTokenTypeExactAmountOut
+
 7. block_time
