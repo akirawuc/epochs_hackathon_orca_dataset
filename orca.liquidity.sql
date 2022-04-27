@@ -1,9 +1,17 @@
+-- 1. Tx signature v
+-- 2. Signer (User) v
+-- 3. pool v
+-- 4. token v
+-- 5. amount 
+-- 6. action v
+-- 7. blockTime v
+
 select
     id,
     signer,
     pools,
     case
-        when token='7Q2afV64in6N6SeZsAAB81TJzwDoD6zpqmHkzi9Dcavn' then 'JSOL'
+    when token='7Q2afV64in6N6SeZsAAB81TJzwDoD6zpqmHkzi9Dcavn' then 'JSOL'
         when token='H7Qc9APCWWGDVxGD5fJHmLTmdEgT9GFatAKFNg6sHh8A' then 'OOGI'
         when token='So11111111111111111111111111111111111111112' then 'SOL'
         when token='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' then 'USDC'
@@ -252,8 +260,14 @@ select
                     )
                 )
             )
+            when pool_action = 'Deposit_Single' then 
+                abs(
+                    array_max(transform(pre_token_related, x -> x.amount)) - array_max(transform(post_token_related, x -> x.amount)) 
+                )
         else 0
     end as amount,
+    pre_token_related,
+    post_token_related,
     block_time
 from (
     select
@@ -312,7 +326,7 @@ from (
                             and  (
                                 CAST(txn.log_messages as string) LIKE '%Instruction: Deposit%' or  CAST(txn.log_messages as string) LIKE '%Instruction: Withdraw%')
                             and array_contains(account_keys, 'Vote111111111111111111111111111111111111111') = false
-                            and block_time >= date_trunc('minute', now() - interval '10 minute')
+                            and block_time >= date_trunc('hour', now() - interval '1 hour')
                     )
                 )
         )
