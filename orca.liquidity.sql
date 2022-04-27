@@ -264,6 +264,10 @@ select
                 abs(
                     array_max(transform(pre_token_related, x -> x.amount)) - array_max(transform(post_token_related, x -> x.amount)) 
                 )
+            when pool_action = 'Withdraw_Single' then 
+                abs(
+                    array_max(transform(pre_token_related, x -> x.amount)) - array_max(transform(post_token_related, x -> x.amount)) 
+                )
         else 0
     end as amount,
     pre_token_related,
