@@ -1,6 +1,6 @@
 import {Connection} from "@solana/web3.js"
 import {getOrca} from "@orca-so/sdk";
-import {OrcaPoolConfig} from "@orca-so/sdk/dist/public";
+import {OrcaPool, OrcaPoolConfig} from "@orca-so/sdk/dist/public";
 import * as ORCA_POOL from "./orca_pool"
 import * as fs from "fs";
 import {orcaPool} from "./orca_pool";
@@ -78,6 +78,8 @@ function getPoolInfo(poolAddress: string): Pool {
     return pools[0] as Pool
 }
 
+
+//using orca sdk to get pool info
 async function generateOrcaPoolDetail(){
     const rpcUri = "https://api.mainnet-beta.solana.com"
     const connection = new Connection(rpcUri, "singleGossip");
@@ -86,36 +88,41 @@ async function generateOrcaPoolDetail(){
     const poolAddresses = Object.values(OrcaPoolConfig)
     for (let addr of poolAddresses) {
         const orcaPool = orca.getPool(addr);
-        const tokenB = orcaPool.getTokenB();
-        const tokenA = orcaPool.getTokenA();
-        const d = getPoolInfo(addr)
-        let pool: PoolDetail = {
-            name: d.name,
-            name2: d.name2,
-            account: d.account,
-            mint_account: d.mint_account,
-            liquidity: d.liquidity,
-            price: d.price,
-            apy_24h: d.apy_24h ? d.apy_24h : 0,
-            apy_7d: d.apy_30d ? d.apy_30d : 0,
-            apy_30d: d.apy_30d ? d.apy_30d : 0,
-            volume_24h: d.volume_24h,
-            volume_24h_quote: d.volume_24h_quote,
-            volume_7d: d.volume_7d,
-            volume_7d_quote: d.volume_7d_quote,
-            volume_30d: d.volume_30d,
-            volume_30d_quote: d.volume_30d_quote,
-            token_mint_A: tokenA.mint.toBase58(),
-            token_account_A: tokenA.addr.toBase58(),
-            token_mint_B: tokenB.mint.toBase58(),
-            token_account_B: tokenB.addr.toBase58(),
-        }
-        pools.push(pool)
+        const poolInfo = getPoolInfo(addr)
+        const poolDetail=convertToPoolDetail(poolInfo,orcaPool)
+        pools.push(poolDetail)
         sleep(500)
     }
     const data = JSON.stringify(pools);
     console.log(data)
     fs.writeFileSync('./orca_pool_detail.json', data);
+}
+
+function convertToPoolDetail(pool:Pool,orcaPool:OrcaPool):PoolDetail{
+    const tokenA=orcaPool.getTokenA()
+    const tokenB=orcaPool.getTokenB()
+    let poolDetail = {
+        name: pool.name,
+        name2: pool.name2,
+        account: pool.account,
+        mint_account: pool.mint_account,
+        liquidity: pool.liquidity,
+        price: pool.price,
+        apy_24h: pool.apy_24h ? pool.apy_24h : 0,
+        apy_7d: pool.apy_30d ? pool.apy_30d : 0,
+        apy_30d: pool.apy_30d ? pool.apy_30d : 0,
+        volume_24h: pool.volume_24h,
+        volume_24h_quote: pool.volume_24h_quote,
+        volume_7d: pool.volume_7d,
+        volume_7d_quote: pool.volume_7d_quote,
+        volume_30d: pool.volume_30d,
+        volume_30d_quote: pool.volume_30d_quote,
+        token_mint_A: tokenA.mint.toBase58(),
+        token_account_A: tokenA.addr.toBase58(),
+        token_mint_B: tokenB.mint.toBase58(),
+        token_account_B: tokenB.addr.toBase58(),
+    }
+    return poolDetail
 }
 
 function sleep(delay: number) {
